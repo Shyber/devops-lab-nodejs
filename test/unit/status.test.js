@@ -9,12 +9,24 @@ describe('formatStatus', () => {
   it('throws on negative', () => {
     expect(() => formatStatus(-1)).toThrow('invalid uptime')
   })
+
   it('warming-up under 60s', () => {
     expect(formatStatus(10)).toBe('warming-up')
   })
+
+  it('warming-up at 0 and 59 seconds', () => {
+    expect(formatStatus(0)).toBe('warming-up')
+    expect(formatStatus(59)).toBe('warming-up')
+  })
+
+  it('healthy at 60 seconds', () => {
+    expect(formatStatus(60)).toBe('healthy')
+  })
+
   it('healthy under 1h', () => {
     expect(formatStatus(3599)).toBe('healthy')
   })
+
   it('steady at or after 1h', () => {
     expect(formatStatus(3600)).toBe('steady')
   })
