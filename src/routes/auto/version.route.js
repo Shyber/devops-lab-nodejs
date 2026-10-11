@@ -12,6 +12,8 @@ const __dirname = path.dirname(__filename)
 
 const router = Router()
 
+// DEVOPS-5: Version endpoint implemented
+
 router.get('/version', (_req, res) => {
   const pkg = JSON.parse(
     fs.readFileSync(path.join(__dirname, '..', '..', '..', 'package.json'), 'utf-8')
