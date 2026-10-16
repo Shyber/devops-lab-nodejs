@@ -1,18 +1,21 @@
 # DevOps Lab – Student Project (Node.js + Jira/GitHub + CI/CD)
 
 This repository is a **teaching template** for a 4-student DevOps mini-project.
-It demonstrates a realistic workflow: **PLAN (Jira) → CODE (Git/VS Code) → BUILD/TEST (GitHub Actions) → REVIEW (PRs) → DEPLOY (optional)**.
+
+It demonstrates the workflow: **PLAN (Jira) → CODE (Git/VS Code) → BUILD/TEST (GitHub Actions) → REVIEW (PRs) → DEPLOY (optional)**.
 
 > **What you get here**
 > - Minimal **Express** API with auto-mounted routes
-> - **Vitest + Supertest** for integration & unit tests
-> - Coverage thresholds enforced in CI
-> - **GitHub Actions** workflow for lint + tests + coverage artifact
+> - **Vitest + Supertest** for integration and unit tests
+> - Coverage thresholds enforced by Vitest during CI
+> - **GitHub Actions** workflow for lint, tests and a coverage artifact
 > - Clear file layout for a team of 4
 
 ---
 
 ## Quickstart
+
+Use **Node.js 20.19.0 or newer**.
 
 ```bash
 npm ci
@@ -20,7 +23,9 @@ npm run dev          # http://localhost:3000
 npm test -- --coverage
 ```
 
-Open `coverage/index.html` for a visual coverage report (locally).
+On Windows PowerShell, use `npm.cmd` instead of `npm` if script execution is blocked (for example, `npm.cmd ci`).
+
+Open `coverage/index.html` to view the coverage report locally.
 
 ---
 
@@ -32,67 +37,75 @@ Open `coverage/index.html` for a visual coverage report (locally).
 - `GET /info` – returns `{ name, version, node, uptime }`
 - `GET /boom` – triggers an error to test the global error handler
 
-Routes are **auto-mounted** from `src/routes/auto/*.route.js` so each student can add a file without touching `src/app.js` (fewer merge conflicts).
+Routes are **auto-mounted** from `src/routes/auto/*.route.js`, so each student can work on a route without editing `src/app.js` (fewer merge conflicts).
 
 ---
 
 ## Tests
 
-- **Integration tests** (Supertest) target HTTP endpoints in `test/*.test.js`.
-- **Unit tests** target internal logic in `test/unit/*.test.js`.
+- **Integration tests** (Supertest) check HTTP endpoints in `test/*.test.js`.
+- **Unit tests** check internal logic in `test/unit/*.test.js`.
 
-Coverage thresholds (Lines/Functions/Statements ≥ 80%, Branches ≥ 70%) are set in `package.json`.  
-If coverage drops below thresholds, CI fails and blocks the merge (quality gate).
+Coverage thresholds are configured in **`vitest.config.js`**, not in `package.json`:
+
+| Metric | Minimum |
+|---|---:|
+| Lines | 80% |
+| Functions | 80% |
+| Statements | 80% |
+| Branches | 70% |
+
+If coverage is below a threshold, the **CI check fails**. The team should check that CI passes before merging a Pull Request.
 
 ---
 
 ## Branch & Commit Convention (Jira-friendly)
 
-- Branch: `feature/<ISSUE-KEY>-<short-desc>` → e.g., `feature/SHMS-12-info-endpoint`
-- Commit: `feat(<ISSUE-KEY>): <what>` → e.g., `feat(SHMS-12): implement /info endpoint`
-- PR title: `<ISSUE-KEY> | <title>` → e.g., `SHMS-12 | Add /info endpoint`
+- Branch: `feature/<ISSUE-KEY>-<short-desc>` → e.g., `feature/DEVOPS-6-info-endpoint`
+- Commit: `feat(<ISSUE-KEY>): <what>` or `test(<ISSUE-KEY>): <what>` → e.g., `test(DEVOPS-8): add uptime boundary cases`
+- PR title: `<ISSUE-KEY> | <title>` → e.g., `DEVOPS-8 | Add uptime boundary tests`
 
-If you install **GitHub for Jira**, issues will link automatically when the key appears in branch/commit/PR.
+When **GitHub for Jira** is connected, including the Jira key in branches, commits and PRs helps link the work to Jira.
 
 ---
 
 ## CI (GitHub Actions)
 
-A workflow is included at `.github/workflows/ci.yml` that runs on pushes and PRs to `main`:
+The workflow in `.github/workflows/ci.yml` runs on pushes to `main` and Pull Requests targeting `main`:
 
-- Install Node and deps
-- `npm run lint`
-- `npm test -- --coverage`
-- Upload `coverage/` as an artifact
+1. Check out the repository and set up Node.js
+2. Install dependencies with `npm ci`
+3. Run `npm run lint`
+4. Run `npm test -- --coverage`
+5. Upload the `coverage/` folder as the **`coverage-report`** artifact
 
-> Badge (enable after first run):
->
-> ```md
-> ![CI](https://github.com/<org>/<repo>/actions/workflows/ci.yml/badge.svg)
-> ```
+A successful CI run means these automated checks passed. Code review and merging are separate steps.
 
 ---
 
 ## Project layout
 
-```
+```text
 src/
   app.js          # Express app (auto-mount + global error handler)
-  index.js        # server entry (not used by tests)
-  routes/auto/    # students add *.route.js files here
-  utils/          # small testable helpers
+  index.js        # Server entry point (not used by tests)
+  routes/auto/    # Auto-mounted *.route.js files
+  utils/          # Small testable helpers
 test/
-  *.test.js       # integration (HTTP) tests
-  unit/*.test.js  # pure unit tests
+  *.test.js       # Integration (HTTP) tests
+  unit/*.test.js  # Unit tests
+vitest.config.js  # Coverage configuration and minimum thresholds
 ```
 
 ---
 
 ## Useful scripts
 
-- `npm run dev` – start dev server with nodemon
-- `npm test` – run all tests (Vitest)
-- `npm test -- --coverage` – with coverage
-- `npm run lint` – ESLint check
+- `npm run dev` – start the development server with **Node.js built-in watch mode** (`node --watch`)
+- `npm start` – start the server without watch mode
+- `npm test` – run all tests with Vitest
+- `npm test -- --coverage` – run tests with coverage
+- `npm run lint` – check JavaScript style with ESLint
+- `npm audit` – check dependencies for known vulnerabilities
 
 Enjoy the lab!
