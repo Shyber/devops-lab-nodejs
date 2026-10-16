@@ -26,4 +26,9 @@ describe('getRuntimeInfo', () => {
     expect(spy).toHaveBeenCalled()
     spy.mockRestore()
   })
+
+  it('returns the current Node version', () => {
+    const runtime = getRuntimeInfo()
+    expect(runtime.node).toBe(process.version)
+  })
 })
