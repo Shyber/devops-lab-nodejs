@@ -16,6 +16,15 @@ const __dirname = path.dirname(__filename)
 
 const app = express()
 
+// Lab5 routers accept JSON objects. Reject arrays and null before routing.
+app.use(express.json())
+app.use((req, res, next) => {
+  if (req.body === null || typeof req.body !== 'object' || Array.isArray(req.body)) {
+    return res.status(400).json({ error: true, message: 'Expected a JSON object' })
+  }
+  next()
+})
+
 // Simple root + health endpoints
 app.get('/', (_req, res) => res.json({ ok: true, message: 'Hello from CI/CD demo 👋' }))
 app.get('/health', (_req, res) => res.status(200).send('OK'))
