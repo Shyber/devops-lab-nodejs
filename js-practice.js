@@ -1,13 +1,16 @@
 // 2.1 Variables and Data Types
 const hospitalName = 'Central Hospital'
 const numberOfDoctors = 12
-const isOpen = true
+let isOpen = true
 
 if (isOpen) {
   console.log(`Welcome to ${hospitalName}! We have ${numberOfDoctors} doctors currently available.`)
 } else {
   console.log(`${hospitalName} is currently closed.`)
 }
+
+isOpen = false
+if (!isOpen) console.log(`${hospitalName} is currently closed.`)
 
 // 2.2 Working with Arrays and Loops
 const doctors = ['Dr. Lee', 'Dr. Khan', 'Dr. Patel', 'Dr. Smith', 'Dr. Dupont']
@@ -52,6 +55,7 @@ function addPatient (name, age) {
   patients.push({ id: patients.length + 1, name, age })
 }
 addPatient('David', 50)
+console.log('Updated patients:', patients)
 console.log('Filtered Patients (>30):', filterByAge(30))
 
 // 2.6 Error Handling and Validation
