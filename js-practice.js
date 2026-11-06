@@ -1,90 +1,54 @@
-// 2.1 Variables and Data Types
-const hospitalName = 'Central Hospital'
-const numberOfDoctors = 12
-let isOpen = true
+// 2.1 Variables
+const systemName = 'Cyber Incident Reporting System'
+const activeAlerts = 5
+const isOnline = true
+if (isOnline) console.log(`Welcome to ${systemName}! We have ${activeAlerts} active alerts.`)
 
-if (isOpen) {
-  console.log(`Welcome to ${hospitalName}! We have ${numberOfDoctors} doctors currently available.`)
-} else {
-  console.log(`${hospitalName} is currently closed.`)
+// 2.2 Arrays and Loops
+const analysts = ['Alice', 'Bob', 'Charlie', 'Diana', 'Eve']
+for (const [index, analyst] of analysts.entries()) {
+  console.log(`Analyst #${index + 1}: ${analyst}`)
 }
-
-isOpen = false
-if (!isOpen) console.log(`${hospitalName} is currently closed.`)
-
-// 2.2 Working with Arrays and Loops
-const doctors = ['Dr. Lee', 'Dr. Khan', 'Dr. Patel', 'Dr. Smith', 'Dr. Dupont']
-let index = 1
-for (const doc of doctors) {
-  console.log(`Doctor #${index++}: ${doc}`)
-}
-doctors.push('Dr. Anna')
-console.log('Updated count:', doctors.length)
-
-function findDoctor (name) {
-  return doctors.includes(name) ? 'Doctor found' : 'Doctor not found'
-}
-console.log(findDoctor('Dr. Lee'))
+analysts.push('Frank')
 
 // 2.3 Objects and Nested Data
-const patient = {
-  name: 'Alice Martin',
-  age: 34,
-  conditions: ['diabetes', 'hypertension'],
-  doctor: { name: 'Dr. Lee', specialty: 'Cardiology' }
+const incident = {
+  id: 101,
+  title: 'Suspicious Login',
+  severity: 'High',
+  indicators: ['Failed logins', 'Foreign IP'],
+  analyst: { name: 'Alice', clearance: 'Level 3' }
 }
-
-console.log('Doctor Name:', patient.doctor.name)
-console.log('Number of conditions:', patient.conditions.length)
-console.log(`${patient.name} is treated by ${patient.doctor.name} (${patient.doctor.specialty}).`)
-patient.conditions.push('anxiety')
-console.log('Updated Patient Object:', patient)
+incident.indicators.push('Disabled MFA')
+console.log('Updated Incident:', incident)
 
 // 2.4 Functions and Array Filtering
-const patients = [
-  { id: 1, name: 'Alice', age: 34 },
-  { id: 2, name: 'John', age: 45 },
-  { id: 3, name: 'Marie', age: 29 }
+const incidents = [
+  { id: 1, type: 'Phishing', severity: 'Low' },
+  { id: 2, type: 'Ransomware', severity: 'Critical' }
 ]
+const filterBySeverity = (level) => incidents.filter(inc => inc.severity === level)
+console.log('Critical Incidents:', filterBySeverity('Critical'))
 
-function filterByAge (minAge) {
-  return patients.filter(p => p.age > minAge)
+// 2.6 Error Handling
+function createReport (type, severity) {
+  if (!type || !severity) throw new Error('Missing required fields')
+  return { type, severity, date: new Date() }
 }
-
-function addPatient (name, age) {
-  patients.push({ id: patients.length + 1, name, age })
-}
-addPatient('David', 50)
-console.log('Updated patients:', patients)
-console.log('Filtered Patients (>30):', filterByAge(30))
-
-// 2.6 Error Handling and Validation
-function createAppointment (doctor, patient, date) {
-  if (!doctor || !patient || !date) {
-    throw new Error('Missing required fields')
-  }
-  return { doctor, patient, date }
-}
-
 try {
-  console.log(createAppointment('Dr. Lee', 'Alice', '2025-03-15'))
-  console.log(createAppointment('Dr. Lee'))
+  createReport('Malware')
 } catch (err) {
   console.error('Error:', err.message)
 }
 
-// 2.7 Asynchronous Code
-function getHospitalData () {
+// 2.7 Async Code
+function getSystemStatus () {
   return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ name: 'Central Hospital', uptime: 1234 })
-    }, 1000)
+    setTimeout(() => resolve({ system: 'CIRS', uptime: 99.9 }), 1000)
   })
 }
-
-async function showData () {
-  console.log('Fetching hospital data...')
-  const data = await getHospitalData()
+async function showStatus () {
+  const data = await getSystemStatus()
   console.log('Data loaded:', data)
 }
-showData()
+showStatus()

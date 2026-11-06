@@ -1,14 +1,13 @@
 import express from 'express'
-
 const router = express.Router()
 
 router.get('/api/metrics', (req, res) => {
   res.status(200).json({
-    hospital: 'Central Hospital',
-    status: 'Operational',
-    totalDoctors: 5,
-    totalPatients: 10,
-    activeAppointments: 3,
+    system: 'Cyber Incident Reporting System',
+    status: 'Secure',
+    activeIncidents: 12,
+    criticalAlerts: 2,
+    onlineAnalysts: 5,
     systemUptime: process.uptime()
   })
 })
