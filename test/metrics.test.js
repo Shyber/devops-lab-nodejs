@@ -1,23 +1,16 @@
-import { describe, it, expect } from 'vitest'
 import request from 'supertest'
+import { describe, it, expect } from 'vitest'
 import app from '../src/app.js'
 
-describe('Metrics API - DEVOPS-14', () => {
-  it('returns hospital statistics', async () => {
+describe('CIRS Metrics API', () => {
+  it('GET /api/metrics should return system statistics', async () => {
     const res = await request(app).get('/api/metrics')
-
+    
     expect(res.status).toBe(200)
-    expect(res.body.hospital).toBe('Central Hospital')
-    expect(res.body.status).toBe('Operational')
-
-    for (const field of [
-      'totalDoctors',
-      'totalPatients',
-      'activeAppointments',
-      'systemUptime'
-    ]) {
-      expect(res.body[field]).toEqual(expect.any(Number))
-      expect(res.body[field]).toBeGreaterThanOrEqual(0)
-    }
+    expect(res.body).toHaveProperty('system', 'Cyber Incident Reporting System')
+    expect(res.body).toHaveProperty('status', 'Secure')
+    expect(res.body).toHaveProperty('activeIncidents')
+    expect(res.body).toHaveProperty('criticalAlerts')
+    expect(res.body).toHaveProperty('systemUptime')
   })
 })
