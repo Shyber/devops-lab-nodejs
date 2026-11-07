@@ -1,0 +1,536 @@
+{
+  "info": {
+    "name": "CIRS Lab5 - Incidents",
+    "_postman_id": "76368848-dea6-47d5-aa69-78f018fcf182",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "CIRS Lab5. Fictional local data only. Start the assembled API, then run requests in order. Repeated runs use fresh generated email values. No authentication or production presence is implemented."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 GET all incidents",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.collectionVariables.set('incidentsBefore', pm.response.json().length); pm.test('Incident array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "02 POST create incident",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "const b = pm.response.json(); pm.collectionVariables.set('newIncidentId', b.id); pm.test('SRS creation defaults', () => { pm.expect(b.status).to.eql('REPORTED'); pm.expect(b.priority).to.eql('MEDIUM'); pm.expect(b.assignedAnalystId).to.eql(null); pm.expect(b.reporterId).to.eql(100); pm.expect(b.history[0].action).to.eql('CREATED'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Fictional phishing training report\",\n  \"description\": \"This fictional message is used to test the CIRS classroom demonstration.\",\n  \"categoryId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "03 GET created incident",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Read back saved incident', () => pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('newIncidentId'))));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents/{{newIncidentId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents",
+            "{{newIncidentId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "04 GET combined filters",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('All three filters match', () => { const b = pm.response.json(); pm.expect(b.length).to.be.above(0); pm.expect(b.every(x => x.status === 'IN_PROGRESS' && x.priority === 'CRITICAL' && x.categoryId === 4)).to.eql(true); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents?status=IN_PROGRESS&priority=CRITICAL&category=Malware",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "IN_PROGRESS"
+            },
+            {
+              "key": "priority",
+              "value": "CRITICAL"
+            },
+            {
+              "key": "category",
+              "value": "Malware"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "05 GET no matching incident",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('No matches is an empty array', () => pm.expect(pm.response.json()).to.eql([]));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents?status=REPORTED&priority=LOW",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "REPORTED"
+            },
+            {
+              "key": "priority",
+              "value": "LOW"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "06 GET invalid status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents?status=BANANA",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ],
+          "query": [
+            {
+              "key": "status",
+              "value": "BANANA"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "07 POST short title",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"tiny\",\n  \"description\": \"This fictional message is used to test the CIRS classroom demonstration.\",\n  \"categoryId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "08 POST short description",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Fictional phishing training report\",\n  \"description\": \"too short\",\n  \"categoryId\": 1\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "09 POST inactive category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Fictional phishing training report\",\n  \"description\": \"This fictional message is used to test the CIRS classroom demonstration.\",\n  \"categoryId\": 6\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10 POST unknown category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Fictional phishing training report\",\n  \"description\": \"This fictional message is used to test the CIRS classroom demonstration.\",\n  \"categoryId\": 999999\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "11 POST rejected reporter override",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Fictional phishing training report\",\n  \"description\": \"This fictional message is used to test the CIRS classroom demonstration.\",\n  \"categoryId\": 1,\n  \"reporterId\": 500\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "12 GET unknown incident",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents/999999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents",
+            "999999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "13 GET count after rejected writes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Invalid reports created no records', () => pm.expect(pm.response.json().length).to.eql(Number(pm.collectionVariables.get('incidentsBefore')) + 1));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/incidents",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "incidents"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
