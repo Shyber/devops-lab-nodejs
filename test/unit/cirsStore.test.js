@@ -1,38 +1,39 @@
 import { beforeEach, describe, it, expect } from 'vitest'
-import request from 'supertest'
-import app from '../../src/app.js'
-import { store, resetStore, textField, findIncident, fail } from '../../src/data/cirsStore.js'
-
+import { store, resetStore, nextId, findIncident, recordChange } from '../../src/data/cirsStore.js'
+import { check, text, id, fields, isFinal } from '../../src/utils/validation.js'
 beforeEach(resetStore)
 
-describe('Shared CIRS data and validation', () => {
-  it('starts with two active categories and clears demo changes', () => {
-    store.categories.push({ id: 3, name: 'Demo', active: false })
-    store.incidents.push({ id: 1 })
+describe('Common CIRS fixtures and input validation', () => {
+  it('restores fixtures and provides IDs even for empty or non-contiguous arrays', () => {
+    store.incidents.length = 0
+    store.analysts.push({ id: 50 })
     resetStore()
-    expect(store.categories).toHaveLength(2)
-    expect(store.categories.every(category => category.active)).toBe(true)
-    expect(store.incidents).toEqual([])
+    expect(store.incidents).toHaveLength(6)
+    expect(store.analysts).toHaveLength(3)
+    expect(store.categories.filter(item => item.active)).toHaveLength(5)
+    expect(nextId([])).toBe(1)
+    expect(nextId([{ id: 1 }, { id: 7 }])).toBe(8)
   })
-
-  it.each([
-    ['  valid  ', true], ['abc', true], ['12345', true],
-    ['ab', false], ['123456', false], [undefined, false], [4, false]
-  ])('validates trimmed text boundaries: %j', (value, expected) => {
-    expect(textField(value, 3, 5)).toBe(expected)
+  it('finds an incident and records an actor-aware change', () => {
+    const incident = findIncident('1')
+    recordChange(incident, 'ASSIGNED', null, 2)
+    expect(incident.history[0]).toMatchObject({ action: 'ASSIGNED', actorId: 1, oldValue: null, newValue: 2 })
+    expect(() => findIncident('99999')).toThrow('Incident not found')
   })
-
-  it('looks up IDs and returns a 404 for unknown incidents', () => {
-    const record = { id: 1, title: 'Demo' }
-    store.incidents.push(record)
-    expect(findIncident('1')).toBe(record)
-    expect(() => findIncident('99')).toThrow('Incident not found')
-    try { fail(409, 'Conflict') } catch (err) { expect(err.status).toBe(409) }
+  it.each([1, '1', 100, Number.MAX_SAFE_INTEGER])('accepts a positive safe ID %j', value => expect(id(value)).toBe(Number(value)))
+  it.each([undefined, null, true, false, [], [1], {}, 0, -1, 1.5, '1.5', '01', '', ' 1 ', '1e2', Number.MAX_SAFE_INTEGER + 1])('rejects an unsafe ID %j', value => expect(() => id(value)).toThrow('Expected a positive integer ID'))
+  it.each([['abc', true], ['  abc  ', true], ['abcde', true], ['ab', false], ['abcdef', false], [null, false], [3, false]])('checks trimmed text boundaries %j', (value, valid) => {
+    if (valid) expect(text(value, 'name', 3, 5)).toBe(value.trim())
+    else expect(() => text(value, 'name', 3, 5)).toThrow()
   })
-
-  it('rejects a JSON array before it reaches any route', async () => {
-    const res = await request(app).post('/health').send([])
-    expect(res.status).toBe(400)
-    expect(res.body).toEqual({ error: true, message: 'Expected a JSON object' })
+  it('validates object shape and preserves HTTP status and code on errors', () => {
+    fields({ title: 'Demo' }, ['title'])
+    for (const body of [null, [], 'value', 1, { extra: 1 }]) expect(() => fields(body, ['title'])).toThrow()
+    expect(() => check(false, 409, 'CONFLICT', 'Conflict')).toThrow(expect.objectContaining({ status: 409, code: 'CONFLICT' }))
+    check(true, 400, 'UNUSED', 'Unused')
+  })
+  it('treats only CLOSED and REJECTED as final', () => {
+    expect(['CLOSED', 'REJECTED'].every(isFinal)).toBe(true)
+    expect(['REPORTED', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED'].some(isFinal)).toBe(false)
   })
 })

@@ -1,90 +1,76 @@
-// 2.1 Variables and Data Types
-const hospitalName = 'Central Hospital'
-const numberOfDoctors = 12
-let isOpen = true
+// Based on Kandarp Pandya's PR #16. Completed for every Lab5 task (2.1-2.7).
+// All values are fictional. Exercise arrays are separate from the API data.
+console.log('\n2.1 Variables and data types')
+const systemName = 'Cyber Incident Reporting System'
+const numberOfAnalysts = 5
+let isOnline = true
+if (isOnline) console.log(`Welcome to ${systemName}! We have ${numberOfAnalysts} analysts available.`)
+isOnline = false
+if (!isOnline) console.log(`${systemName} is offline for this exercise.`)
 
-if (isOpen) {
-  console.log(`Welcome to ${hospitalName}! We have ${numberOfDoctors} doctors currently available.`)
-} else {
-  console.log(`${hospitalName} is currently closed.`)
+console.log('\n2.2 Arrays and loops')
+const analysts = ['Maya', 'Leo', 'Nora', 'Alex', 'Sam']
+for (const [index, analyst] of analysts.entries()) {
+  console.log(`Analyst #${index + 1}: ${analyst}`)
 }
-
-isOpen = false
-if (!isOpen) console.log(`${hospitalName} is currently closed.`)
-
-// 2.2 Working with Arrays and Loops
-const doctors = ['Dr. Lee', 'Dr. Khan', 'Dr. Patel', 'Dr. Smith', 'Dr. Dupont']
-let index = 1
-for (const doc of doctors) {
-  console.log(`Doctor #${index++}: ${doc}`)
+analysts.push('Robin')
+console.log('Updated count:', analysts.length)
+function findAnalyst (name) {
+  return analysts.includes(name) ? 'Analyst found' : 'Analyst not found'
 }
-doctors.push('Dr. Anna')
-console.log('Updated count:', doctors.length)
+console.log(findAnalyst('Maya'))
+console.log(findAnalyst('Unknown'))
 
-function findDoctor (name) {
-  return doctors.includes(name) ? 'Doctor found' : 'Doctor not found'
+console.log('\n2.3 Objects and nested data')
+const incident = {
+  title: 'Suspicious training login',
+  priority: 'HIGH',
+  indicators: ['Repeated failed logins', 'Unexpected training device'],
+  analyst: { name: 'Maya', specialty: 'Account security' }
 }
-console.log(findDoctor('Dr. Lee'))
+console.log('Analyst name:', incident.analyst.name)
+console.log('Indicator count:', incident.indicators.length)
+console.log(`${incident.title} is handled by ${incident.analyst.name} (${incident.analyst.specialty}).`)
+incident.indicators.push('Unexpected MFA prompt')
+console.log('Updated incident:', incident)
 
-// 2.3 Objects and Nested Data
-const patient = {
-  name: 'Alice Martin',
-  age: 34,
-  conditions: ['diabetes', 'hypertension'],
-  doctor: { name: 'Dr. Lee', specialty: 'Cardiology' }
-}
-
-console.log('Doctor Name:', patient.doctor.name)
-console.log('Number of conditions:', patient.conditions.length)
-console.log(`${patient.name} is treated by ${patient.doctor.name} (${patient.doctor.specialty}).`)
-patient.conditions.push('anxiety')
-console.log('Updated Patient Object:', patient)
-
-// 2.4 Functions and Array Filtering
-const patients = [
-  { id: 1, name: 'Alice', age: 34 },
-  { id: 2, name: 'John', age: 45 },
-  { id: 3, name: 'Marie', age: 29 }
+console.log('\n2.4 Functions and filtering')
+const incidents = [
+  { id: 1, title: 'Training phishing email', priority: 'MEDIUM' },
+  { id: 2, title: 'Training malware alert', priority: 'CRITICAL' },
+  { id: 3, title: 'Training account access', priority: 'HIGH' }
 ]
-
-function filterByAge (minAge) {
-  return patients.filter(p => p.age > minAge)
+const filterByPriority = priority => incidents.filter(item => item.priority === priority)
+function addIncident (title, priority) {
+  incidents.push({ id: incidents.length + 1, title, priority })
 }
+addIncident('Training suspicious link', 'LOW')
+console.log('Updated incidents:', incidents)
+console.log('Critical incidents:', filterByPriority('CRITICAL'))
 
-function addPatient (name, age) {
-  patients.push({ id: patients.length + 1, name, age })
+console.log('\n2.5 Modules: run node main.js to use cirsData.js')
+
+console.log('\n2.6 Validation and error handling')
+function createAssignment (analyst, incident, date) {
+  if (!analyst || !incident || !date) throw new Error('Missing required fields')
+  return { analyst, incident, date }
 }
-addPatient('David', 50)
-console.log('Updated patients:', patients)
-console.log('Filtered Patients (>30):', filterByAge(30))
-
-// 2.6 Error Handling and Validation
-function createAppointment (doctor, patient, date) {
-  if (!doctor || !patient || !date) {
-    throw new Error('Missing required fields')
-  }
-  return { doctor, patient, date }
-}
-
 try {
-  console.log(createAppointment('Dr. Lee', 'Alice', '2025-03-15'))
-  console.log(createAppointment('Dr. Lee'))
-} catch (err) {
-  console.error('Error:', err.message)
+  console.log('Valid assignment:', createAssignment('Maya', 'Existing incident #1', '2026-11-06'))
+  createAssignment('Maya')
+} catch (error) {
+  console.log('Expected error:', error.message)
 }
 
-// 2.7 Asynchronous Code
-function getHospitalData () {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ name: 'Central Hospital', uptime: 1234 })
-    }, 1000)
+console.log('\n2.7 Async/await')
+function getSystemData () {
+  return new Promise(resolve => {
+    setTimeout(() => resolve({ system: 'CIRS', incidentCount: incidents.length }), 1000)
   })
 }
-
 async function showData () {
-  console.log('Fetching hospital data...')
-  const data = await getHospitalData()
+  console.log('Fetching CIRS data...')
+  const data = await getSystemData()
   console.log('Data loaded:', data)
 }
-showData()
+await showData()

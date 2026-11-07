@@ -1,0 +1,694 @@
+{
+  "kind": "Transcription of the observed native Postman desktop Runner, not a native run export",
+  "observedAt": "2026-11-06T16:41:08+01:00",
+  "requests": 52,
+  "assertionsPassed": 159,
+  "assertionsFailed": 0,
+  "assertionsSkipped": 0,
+  "runtimeErrors": 0,
+  "iterations": 1,
+  "durationMilliseconds": 5748,
+  "nativeRunJsonExport": "Blocked by paid-plan prompt; no subscription change",
+  "requestIndexSource": "Request and assertion definitions from the exact exported collection; all passed in the complete run",
+  "requestsAndAssertions": [
+    {
+      "folder": "00 Common checks",
+      "request": "01 GET CIRS root",
+      "method": "GET",
+      "url": "{{baseUrl}}/",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "CIRS Lab5 endpoint"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "00 Common checks",
+      "request": "02 GET active categories",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/categories",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Five active BRD categories"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "00 Common checks",
+      "request": "03 POST JSON array is refused",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "00 Common checks",
+      "request": "04 POST malformed JSON is refused",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "00 Common checks",
+      "request": "05 GET unknown route",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/unknown",
+      "expectedStatus": 404,
+      "assertions": [
+        "HTTP 404",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "01 GET active analysts",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/analysts",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Active analyst directory"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "02 GET all analyst fixtures",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/analysts?active=all",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Includes inactive fixture"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "03 POST create analyst",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/analysts",
+      "expectedStatus": 201,
+      "assertions": [
+        "HTTP 201",
+        "JSON response",
+        "Generated analyst ID and defaults"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "04 GET created analyst",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/analysts/{{newAnalystId}}",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Created analyst is readable"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "05 POST duplicate email",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/analysts",
+      "expectedStatus": 409,
+      "assertions": [
+        "HTTP 409",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "06 POST missing fields",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/analysts",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "07 POST invalid email",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/analysts",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "08 POST wrong field type",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/analysts",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "09 POST rejected role override",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/analysts",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "10 GET unknown analyst",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/analysts/999999",
+      "expectedStatus": 404,
+      "assertions": [
+        "HTTP 404",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "11 GET invalid active filter",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/analysts?active=yes",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "01 Analysts",
+      "request": "12 GET count after rejected writes",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/analysts?active=all",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Only the valid POST changed the count"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "01 GET all incidents",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Incident array"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "02 POST create incident",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 201,
+      "assertions": [
+        "HTTP 201",
+        "JSON response",
+        "SRS creation defaults"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "03 GET created incident",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents/{{newIncidentId}}",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Read back saved incident"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "04 GET combined filters",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents?status=IN_PROGRESS&priority=CRITICAL&category=Malware",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "All three filters match"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "05 GET no matching incident",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents?status=REPORTED&priority=LOW",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "No matches is an empty array"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "06 GET invalid status",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents?status=BANANA",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "07 POST short title",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "08 POST short description",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "09 POST inactive category",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "10 POST unknown category",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 404,
+      "assertions": [
+        "HTTP 404",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "11 POST rejected reporter override",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "12 GET unknown incident",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents/999999",
+      "expectedStatus": 404,
+      "assertions": [
+        "HTTP 404",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "02 Incidents",
+      "request": "13 GET count after rejected writes",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Invalid reports created no records"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "01 GET existing assignments",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/assignments",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Assignment projections"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "02 POST setup analyst",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/analysts",
+      "expectedStatus": 201,
+      "assertions": [
+        "HTTP 201",
+        "JSON response"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "03 POST setup incident",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 201,
+      "assertions": [
+        "HTTP 201",
+        "JSON response"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "04 GET count before assignment",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "05 POST first assignment",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/assignments",
+      "expectedStatus": 201,
+      "assertions": [
+        "HTTP 201",
+        "JSON response",
+        "Existing incident becomes Assigned"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "06 GET updated incident",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents/{{assignmentIncidentId}}",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Same incident, recorded assignment"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "07 POST reassign existing incident",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/assignments",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Reassignment keeps status"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "08 POST unknown incident",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/assignments",
+      "expectedStatus": 404,
+      "assertions": [
+        "HTTP 404",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "09 POST inactive analyst",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/assignments",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "10 POST unknown analyst",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/assignments",
+      "expectedStatus": 404,
+      "assertions": [
+        "HTTP 404",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "11 POST closed incident",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/assignments",
+      "expectedStatus": 409,
+      "assertions": [
+        "HTTP 409",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "12 POST rejected incident",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/assignments",
+      "expectedStatus": 409,
+      "assertions": [
+        "HTTP 409",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "13 POST missing analyst",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/assignments",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "14 GET count after assignments",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Assignments created no incidents"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "03 Assignments",
+      "request": "15 GET compatibility alias",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/responses?incidentId={{assignmentIncidentId}}",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Alias reads the same assignment"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "04 Metrics",
+      "request": "01 GET current incidents for expected counts",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "04 Metrics",
+      "request": "02 GET data-derived metrics",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/metrics",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Exact SCRUM-14 response keys",
+        "Counts agree with the incident data",
+        "Operational API and fictional presence fixture"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "04 Metrics",
+      "request": "03 POST a new Medium incident",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/incidents",
+      "expectedStatus": 201,
+      "assertions": [
+        "HTTP 201",
+        "JSON response",
+        "New report starts Medium"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "04 Metrics",
+      "request": "04 GET updated metrics",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/metrics",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Exact SCRUM-14 response keys",
+        "Counts agree with the incident data",
+        "Operational API and fictional presence fixture"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "04 Metrics",
+      "request": "05 POST metrics is refused",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/metrics",
+      "expectedStatus": 405,
+      "assertions": [
+        "HTTP 405",
+        "JSON response",
+        "Structured error",
+        "Read-only Allow header"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "04 Metrics",
+      "request": "06 GET unsupported metrics filter",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/metrics?priority=HIGH",
+      "expectedStatus": 400,
+      "assertions": [
+        "HTTP 400",
+        "JSON response",
+        "Structured error"
+      ],
+      "result": "PASS in the complete native Runner run"
+    },
+    {
+      "folder": "04 Metrics",
+      "request": "07 GET metrics unchanged after rejected writes",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/metrics",
+      "expectedStatus": 200,
+      "assertions": [
+        "HTTP 200",
+        "JSON response",
+        "Exact SCRUM-14 response keys",
+        "Counts agree with the incident data",
+        "Operational API and fictional presence fixture"
+      ],
+      "result": "PASS in the complete native Runner run"
+    }
+  ]
+}

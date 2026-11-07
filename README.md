@@ -1,111 +1,54 @@
-# DevOps Lab – Student Project (Node.js + Jira/GitHub + CI/CD)
+# CIRS - Lab5
 
-This repository is a **teaching template** for a 4-student DevOps mini-project.
+> Integration stage: shared foundation only. This branch provides the exercises,
+> shared fixtures/validation, categories and utility routes. Member API routes are
+> integrated in later PRs. See [current integration status](docs/INTEGRATION_STATUS.md).
+> The complete-project guides and earlier full-kit results describe the prepared target.
 
-It demonstrates the workflow: **PLAN (Jira) → CODE (Git/VS Code) → BUILD/TEST (GitHub Actions) → REVIEW (PRs) → DEPLOY (optional)**.
+This project applies Lab5 to the Cyber Incident Reporting System. It includes the
+JavaScript exercises, an Express API, Vitest/Supertest tests and Postman collections.
+The four member packages share one in-memory data store. All example data is fictional.
 
-> **What you get here**
-> - Minimal **Express** API with auto-mounted routes
-> - **Vitest + Supertest** for integration and unit tests
-> - Coverage thresholds enforced by Vitest during CI
-> - **GitHub Actions** workflow for lint, tests and a coverage artifact
-> - Clear file layout for a team of 4
+## Start the assembled project
 
----
+Use Node.js 24 and npm. Open a terminal in this folder:
 
-## Quickstart
-
-Use **Node.js 20.19.0 or newer**.
-
-```bash
-npm ci
-npm run dev          # http://localhost:3000
-npm test -- --coverage
+```powershell
+npm.cmd ci
+npm.cmd run practice
+npm.cmd run modules
+npm.cmd run lint
+npm.cmd run test:coverage
+npm.cmd start
 ```
 
-On Windows PowerShell, use `npm.cmd` instead of `npm` if script execution is blocked (for example, `npm.cmd ci`).
+On Linux/macOS use `npm` instead of `npm.cmd`. The server listens at
+http://127.0.0.1:3000. Stop it with Ctrl+C. A restart restores the initial fixtures.
+If port 3000 is already used, stop your previous lab server or set `$env:PORT=3001`
+before starting and update the Postman `baseUrl` variable.
 
-Open `coverage/index.html` to view the coverage report locally.
+No database, Docker, login or secret is needed. This is the Lab5 teaching scope.
+Authentication, authorization, persistence and the full CIRS workflow are later work.
+The analyst endpoint manages a demonstration directory, not real user accounts.
 
----
+## Explore the work
 
-## Routes
+| Part | Files or command |
+| --- | --- |
+| Exercises 2.1-2.4, 2.6-2.7 | `js-practice.js`, `npm run practice` |
+| Exercise 2.5, modules | `cirsData.js`, `main.js`, `npm run modules` |
+| Shared fixtures and validation | `src/data/cirsStore.js`, `src/utils/validation.js` |
+| Analysts, Yuba's integration component | `src/routes/auto/analysts.route.js`, `test/analysts.test.js` |
+| Incidents, Olivia's integration component | `src/routes/auto/incidents.route.js`, `test/incidents.test.js` |
+| Assignments, Sid Ahmed's integration component | `src/routes/auto/assignments.route.js`, `test/assignments.test.js` |
+| Metrics, Kandarp's integration component | `src/routes/auto/metrics.route.js`, `test/metrics.test.js` |
+| Postman | `postman/`, see [Postman guide](docs/POSTMAN.md) |
+| API rules | [API contract](docs/API.md) |
+| Package order and GitHub | [Integration guide](docs/INTEGRATION.md) |
+| Requirements and Jira | [Scope](docs/SCOPE.md), [Jira mapping](docs/JIRA.md) |
+| Authors and preparation | [Provenance](docs/PROVENANCE.md) |
 
-- `GET /` – basic JSON greeting
-- `GET /health` – health check (200 OK)
-- `GET /version` – returns `{ version }` from `package.json`
-- `GET /info` – returns `{ name, version, node, uptime }`
-- `GET /boom` – triggers an error to test the global error handler
-
-Routes are **auto-mounted** from `src/routes/auto/*.route.js`, so each student can work on a route without editing `src/app.js` (fewer merge conflicts).
-
----
-
-## Tests
-
-- **Integration tests** (Supertest) check HTTP endpoints in `test/*.test.js`.
-- **Unit tests** check internal logic in `test/unit/*.test.js`.
-
-Coverage thresholds are configured in **`vitest.config.js`**, not in `package.json`:
-
-| Metric | Minimum |
-|---|---:|
-| Lines | 80% |
-| Functions | 80% |
-| Statements | 80% |
-| Branches | 70% |
-
-If coverage is below a threshold, the **CI check fails**. The team should check that CI passes before merging a Pull Request.
-
----
-
-## Branch & Commit Convention (Jira-friendly)
-
-- Branch: `feature/<ISSUE-KEY>-<short-desc>` → e.g., `feature/DEVOPS-6-info-endpoint`
-- Commit: `feat(<ISSUE-KEY>): <what>` or `test(<ISSUE-KEY>): <what>` → e.g., `test(DEVOPS-8): add uptime boundary cases`
-- PR title: `<ISSUE-KEY> | <title>` → e.g., `DEVOPS-8 | Add uptime boundary tests`
-
-When **GitHub for Jira** is connected, including the Jira key in branches, commits and PRs helps link the work to Jira.
-
----
-
-## CI (GitHub Actions)
-
-The workflow in `.github/workflows/ci.yml` runs on pushes to `main` and Pull Requests targeting `main`:
-
-1. Check out the repository and set up Node.js
-2. Install dependencies with `npm ci`
-3. Run `npm run lint`
-4. Run `npm test -- --coverage`
-5. Upload the `coverage/` folder as the **`coverage-report`** artifact
-
-A successful CI run means these automated checks passed. Code review and merging are separate steps.
-
----
-
-## Project layout
-
-```text
-src/
-  app.js          # Express app (auto-mount + global error handler)
-  index.js        # Server entry point (not used by tests)
-  routes/auto/    # Auto-mounted *.route.js files
-  utils/          # Small testable helpers
-test/
-  *.test.js       # Integration (HTTP) tests
-  unit/*.test.js  # Unit tests
-vitest.config.js  # Coverage configuration and minimum thresholds
-```
-
----
-
-## Useful scripts
-
-- `npm run dev` – start the development server with **Node.js built-in watch mode** (`node --watch`)
-- `npm start` – start the server without watch mode
-- `npm test` – run all tests with Vitest
-- `npm test -- --coverage` – run tests with coverage
-- `npm run lint` – check JavaScript style with ESLint
-- `npm audit` – check dependencies for known vulnerabilities
-
-Enjoy the lab!
+The dependency lockfile is kept from the starting repository. `.npmrc` preserves
+its existing peer-dependency setting. The current CI uses Node 24, `npm ci`, both
+exercise commands, lint and coverage. The configured minimum is 80% for statements,
+branches, functions and lines. Open `coverage/index.html` after the coverage command.

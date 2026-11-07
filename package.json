@@ -11,7 +11,10 @@
     "dev": "node --watch src/index.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "practice": "node js-practice.js",
+    "modules": "node main.js",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
