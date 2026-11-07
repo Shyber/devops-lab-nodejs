@@ -1,0 +1,502 @@
+{
+  "info": {
+    "name": "CIRS Lab5 - Analysts",
+    "_postman_id": "585786dc-60e3-473d-90fa-13b50e7d19a9",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "CIRS Lab5. Fictional local data only. Start the assembled API, then run requests in order. Repeated runs use fresh generated email values. No authentication or production presence is implemented."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 GET active analysts",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('analystsTag', Date.now() + '-' + Math.floor(Math.random() * 1000000));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Active analyst directory', () => { const b = pm.response.json(); pm.expect(b).to.be.an('array'); pm.expect(b.every(x => x.active && x.role === 'ANALYST')).to.eql(true); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "02 GET all analyst fixtures",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.collectionVariables.set('analystsBefore', pm.response.json().length); pm.test('Includes inactive fixture', () => pm.expect(pm.response.json().some(x => x.active === false)).to.eql(true));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts?active=all",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ],
+          "query": [
+            {
+              "key": "active",
+              "value": "all"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "03 POST create analyst",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "const b = pm.response.json(); pm.collectionVariables.set('newAnalystId', b.id); pm.test('Generated analyst ID and defaults', () => { pm.expect(b.id).to.be.above(3); pm.expect(b.name).to.eql('Robin Taylor'); pm.expect(b.role).to.eql('ANALYST'); pm.expect(b.active).to.eql(true); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Robin Taylor\",\n  \"email\": \"robin.{{analystsTag}}@example.test\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "04 GET created analyst",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Created analyst is readable', () => pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('newAnalystId'))));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts/{{newAnalystId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts",
+            "{{newAnalystId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "05 POST duplicate email",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Robin Taylor\",\n  \"email\": \"robin.{{analystsTag}}@example.test\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "06 POST missing fields",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Incomplete Analyst\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "07 POST invalid email",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Demo Analyst\",\n  \"email\": \"invalid-email\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "08 POST wrong field type",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": 22,\n  \"email\": \"invalid.type@example.test\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "09 POST rejected role override",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Robin Taylor\",\n  \"email\": \"robin.{{analystsTag}}@example.test\",\n  \"role\": \"ADMIN\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10 GET unknown analyst",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts/999999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts",
+            "999999"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "11 GET invalid active filter",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Structured error', () => { const b = pm.response.json(); pm.expect(b.error).to.eql(true); pm.expect(b.code).to.be.a('string'); pm.expect(b.message).to.be.a('string'); pm.expect(b).not.to.have.property('stack'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts?active=yes",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ],
+          "query": [
+            {
+              "key": "active",
+              "value": "yes"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "12 GET count after rejected writes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON response', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('Only the valid POST changed the count', () => pm.expect(pm.response.json().length).to.eql(Number(pm.collectionVariables.get('analystsBefore')) + 1));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/analysts?active=all",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "analysts"
+          ],
+          "query": [
+            {
+              "key": "active",
+              "value": "all"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

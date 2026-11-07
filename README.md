@@ -1,9 +1,10 @@
 # CIRS - Lab5
 
-> Integration stage: shared foundation only. This branch provides the exercises,
-> shared fixtures/validation, categories and utility routes. Member API routes are
-> integrated in later PRs. See [current integration status](docs/INTEGRATION_STATUS.md).
-> The complete-project guides and earlier full-kit results describe the prepared target.
+> Integration stage: shared foundation and Yuba's analyst directory.
+> Exercises, shared fixtures/validation, categories, utility routes and Analysts
+> are available. Incident, assignment and metrics routes are still pending.
+> See [current integration status](docs/INTEGRATION_STATUS.md).
+> Earlier full-kit results describe the prepared four-component target.
 
 This project applies Lab5 to the Cyber Incident Reporting System. It includes the
 JavaScript exercises, an Express API, Vitest/Supertest tests and Postman collections.
