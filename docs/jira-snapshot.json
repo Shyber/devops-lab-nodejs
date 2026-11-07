@@ -1,0 +1,98 @@
+[
+  {
+    "key": "SCRUM-8",
+    "summary": "Security Dashboard & Incident Triage",
+    "status": "En cours",
+    "assignee": null,
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-8",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-11",
+    "summary": "Role-Based Access Control (RBAC) & User Management",
+    "status": "All tasks",
+    "assignee": "Yuba",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-11",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-12",
+    "summary": "Report an incident",
+    "status": "All tasks",
+    "assignee": "Olivia GHOUMO",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-12",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-13",
+    "summary": "View my reports and incident details",
+    "status": "All tasks",
+    "assignee": "Olivia GHOUMO",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-13",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-14",
+    "summary": "Implement CIRS Metrics & Triage Statistics API",
+    "status": "En cours de revue",
+    "assignee": "PANDYA Kandarp Sanket",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-14",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-15",
+    "summary": "Automated Testing & API Validation for CIRS Metrics",
+    "status": "En cours de revue",
+    "assignee": "PANDYA Kandarp Sanket",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-15",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-16",
+    "summary": "Incident History & Audit Log",
+    "status": "All tasks",
+    "assignee": "Yuba",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-16",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-17",
+    "summary": "Public Comments, Analyst Notes & Category Management",
+    "status": "All tasks",
+    "assignee": "Sidahmed Mekiri",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-17",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-18",
+    "summary": "Public comments",
+    "status": "All tasks",
+    "assignee": "Sidahmed Mekiri",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-18",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-19",
+    "summary": "Internal notes",
+    "status": "All tasks",
+    "assignee": "Sidahmed Mekiri",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-19",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-25",
+    "summary": "View and filter all incidents",
+    "status": "En cours",
+    "assignee": "Olivia GHOUMO",
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-25",
+    "observedDate": "2026-11-06"
+  },
+  {
+    "key": "SCRUM-26",
+    "summary": "View and filter all incidents",
+    "status": "En cours",
+    "assignee": null,
+    "url": "https://cyber-incident-reporting-system.atlassian.net/browse/SCRUM-26",
+    "observedDate": "2026-11-06"
+  }
+]
