@@ -1,3 +1,6 @@
+> Historical pre-completion document. Preserved for provenance. For the running
+> authenticated project, use [PROJECT_V1](PROJECT_V1.md) and [ACCEPTANCE](ACCEPTANCE.md).
+
 # Current integration status
 
 This page describes the repository integration on 7 November 2026, separately

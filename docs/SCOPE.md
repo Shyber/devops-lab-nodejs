@@ -1,3 +1,6 @@
+> Historical pre-completion document. Preserved for provenance. For the running
+> authenticated project, use [PROJECT_V1](PROJECT_V1.md) and [ACCEPTANCE](ACCEPTANCE.md).
+
 # Lab5 scope and requirements
 
 The Lab5 PDF and the CIRS BRD, SRS and SDD are the source requirements. This delivery

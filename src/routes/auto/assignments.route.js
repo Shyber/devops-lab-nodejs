@@ -1,8 +1,10 @@
 import express from 'express'
 import { findIncident, getAnalyst, assignIncident, listAssignedIncidents } from '../../data/cirsStore.js'
 import { check, fields, id, isFinal } from '../../utils/validation.js'
+import { roles, accountById } from '../../security/auth.js'
 
 const router = express.Router()
+router.use(['/api/assignments', '/api/responses'], roles('ANALYST', 'ADMIN'))
 // /responses is a compatibility alias for the wording of PR #16.
 // Both URLs operate on incidents; there is no second incident or responses table.
 const paths = ['/api/assignments', '/api/responses']
@@ -23,9 +25,12 @@ router.post(paths, (req, res) => {
   const analyst = getAnalyst(analystId)
   check(analyst, 404, 'ANALYST_NOT_FOUND', 'Analyst not found')
   check(analyst.active && analyst.role === 'ANALYST', 400, 'INVALID_ANALYST', 'Choose an active ANALYST account')
+  const account = accountById(analystId)
+  check(account && account.active === 1 && account.role === 'ANALYST' && account.email.toLowerCase() === analyst.email.toLowerCase(),
+    400, 'INVALID_ANALYST', 'Choose an active ANALYST account')
   check(!isFinal(incident.status), 409, 'FINAL_INCIDENT', 'Closed and Rejected incidents are read-only')
   const firstAssignment = incident.assignedAnalystId === null
-  const updated = assignIncident(incident, analystId)
+  const updated = assignIncident(incident, analystId, req.user.id)
   res.status(firstAssignment ? 201 : 200).json(assignmentView(updated))
 })
 

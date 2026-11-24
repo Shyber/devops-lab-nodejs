@@ -1,3 +1,6 @@
+> Historical pre-completion document. Preserved for provenance. For the running
+> authenticated project, use [PROJECT_V1](PROJECT_V1.md) and [ACCEPTANCE](ACCEPTANCE.md).
+
 # Integration order
 
 For a quick local demonstration, extract `Lab5_CIRS_Projet_Assemble.zip` and follow

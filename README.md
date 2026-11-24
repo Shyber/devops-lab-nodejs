@@ -1,4 +1,72 @@
-# CIRS - Lab5
+# Cyber Incident Reporting System — current project
+
+The current version extends the four members' Lab5/Lab6 work with authenticated
+accounts, ownership, comments, private notes and the full incident workflow.
+Olivia's SQLite persistence and incident CRUD remain in place.
+
+## Launch
+
+Use Node.js 24: `npm ci`, then `npm start`. On Windows use `npm.cmd` if required.
+Open **http://127.0.0.1:3000/app/**. `PORT` and `DB_PATH` select the port and SQLite
+file. Data survives restarts. `npm run db:reset` deliberately restores fictional
+data/accounts and clears sessions; do not run it on a database you need to preserve.
+
+## Fictional local accounts
+
+| Role | Email |
+| --- | --- |
+| Campus user | `campus.user@example.test` |
+| Another campus user | `other.user@example.test` |
+| Analyst | `maya.chen@example.test` |
+| Second analyst | `leo.martin@example.test` |
+| Administrator | `admin@example.test` |
+
+Initial demo password: `CampusDemo2026!`. `CIRS_DEMO_PASSWORD` affects initial
+seeding, not existing passwords. Nora's inactive account cannot log in. Admins
+create accounts with an initial password. The legacy analyst-directory POST
+creates an account with an undisclosed random password; an admin sets its usable
+password through Accounts. These fixtures are not credentials for real services.
+
+Passwords use bcrypt. Signed JWT sessions last 30 minutes, remain in frontend
+memory only, and are revoked on logout. Refresh requires login. Every API request
+checks the account's current role and active state. A random signing secret is
+persisted locally, or supplied using `JWT_SECRET`.
+
+## Validate and understand
+
+```sh
+npm run lint
+npm run test:coverage
+npm run practice
+npm run modules
+npm run test:postman
+npm run test:browser
+```
+
+Postman changes fictional data: run the new Lab6 collection only against a fresh
+isolated demonstration server, with its `baseUrl` set appropriately. Older Lab5
+collections are historical, pre-authentication material. Browser smoke runs
+against a separate server (default http://127.0.0.1:31990) with installed Chrome
+and Edge; it does not prove Firefox compatibility or a human usability study.
+
+See [current architecture and API](docs/PROJECT_V1.md),
+[acceptance verification](docs/ACCEPTANCE.md), and
+[authenticated Postman collection](postman/CIRS_Lab6_Full.postman_collection.json).
+The frontend is a separate static JavaScript module rather than the proposed React
+implementation; SQLite continues the merged Lab6 choice instead of replacing it
+with the initially proposed PostgreSQL stack.
+
+Accounts and categories are deactivated rather than deleted, following Lab2.
+Comments/history are append-only. Incident content supports GET/POST/PUT/DELETE.
+The UI exposes the report-to-triage workflow with current permissions.
+
+Existing contributions and [provenance](docs/PROVENANCE.md) are preserved.
+Software completion does not attest historical meetings, daily board practice or
+an actual DVL submission. The earlier README below describes its dated Lab5 stage.
+
+---
+
+## Historical Lab5 README (superseded for running the current project)
 
 > Integration stage: shared foundation and Yuba's analyst directory.
 > Exercises, shared fixtures/validation, categories, utility routes and Analysts
