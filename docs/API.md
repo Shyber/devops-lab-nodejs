@@ -17,6 +17,8 @@ fractions and ambiguous strings are rejected.
 | GET `/api/incidents` | Optional `status`, `priority`, `category` or `categoryId` | 200 array, newest first; filters combined with AND |
 | GET `/api/incidents/:id` | Existing ID | 200 object, or 404 |
 | POST `/api/incidents` | `title`, `description`, `categoryId` | 201 and Location |
+| PUT `/api/incidents/:id` | One or more of `title`, `description`, `categoryId` | 200 updated object; 409 if CLOSED or REJECTED |
+| DELETE `/api/incidents/:id` | Existing unassigned REPORTED incident | 204 no body; 409 once assigned or handled |
 | GET `/api/assignments` | Optional `incidentId` | 200 array of incidentId, analystId and status |
 | POST `/api/assignments` | `incidentId`, `analystId` | 201 first assignment; 200 reassignment or repeated same assignment |
 | GET `/api/metrics` | No filters | 200, the six SCRUM-14 fields |
@@ -44,6 +46,14 @@ Priorities: LOW, MEDIUM, HIGH, CRITICAL. Enum values are case-sensitive.
 Categories: 1 Phishing, 2 Suspicious Link, 3 Compromised Account, 4 Malware, 5 Other.
 Category 6 is an inactive test fixture. Do not send category and categoryId together.
 No matches returns an empty array. Invalid enum/filter input returns 400.
+
+PUT edits only the reported content (title, description, category) with the same
+rules as creation; send at least one field. Status, priority, reporter and assignment
+cannot be changed here (400). CLOSED and REJECTED incidents are read-only (409).
+Each real change appends one UPDATED history entry holding only the changed fields;
+sending identical values changes nothing. DELETE withdraws a report that the IT team
+has not started handling: it must be REPORTED and unassigned, otherwise 409
+INCIDENT_LOCKED. Its history is removed with it.
 
 Assignments require an existing incident and an existing active ANALYST. Missing
 records return 404, invalid IDs or inactive/wrong-role targets return 400. CLOSED and
