@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect } from 'vitest'
-import request from 'supertest'
+import request from './helpers/request.js'
 import app from '../src/app.js'
 import { resetStore, getIncident } from '../src/data/cirsStore.js'
 import { snapshot, run, count } from './helpers/db.js'

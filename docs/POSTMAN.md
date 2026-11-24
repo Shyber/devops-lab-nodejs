@@ -1,3 +1,6 @@
+> Historical pre-completion document. Preserved for provenance. For the running
+> authenticated project, use [PROJECT_V1](PROJECT_V1.md) and [ACCEPTANCE](ACCEPTANCE.md).
+
 # Postman guide and observed result
 
 Start the assembled API with `npm start`. Import the five `.postman_collection.json`

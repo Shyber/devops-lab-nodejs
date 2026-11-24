@@ -1,10 +1,12 @@
 // Based on Kandarp Pandya's CIRS adaptation in PR #16.
 // Every count is calculated from the database on each request.
 import express from 'express'
+import { roles } from '../../security/auth.js'
 import { metricCounts } from '../../data/cirsStore.js'
 import { fields } from '../../utils/validation.js'
 
 const router = express.Router()
+router.use('/api/metrics', roles('ANALYST', 'ADMIN'))
 
 router.get('/api/metrics', (req, res) => {
   fields(req.query, [])

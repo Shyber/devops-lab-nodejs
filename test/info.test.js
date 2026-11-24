@@ -2,7 +2,7 @@
  * Integration test for GET /info.
  * Validates the merged info object from helpers.
  */
-import request from 'supertest'
+import request from './helpers/request.js'
 import app from '../src/app.js'
 import { describe, it, expect } from 'vitest'
 

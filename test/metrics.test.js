@@ -1,6 +1,6 @@
 // Extends Kandarp Pandya's tests from PR #16 with data consistency checks.
 import { beforeEach, describe, it, expect } from 'vitest'
-import request from 'supertest'
+import request from './helpers/request.js'
 import app from '../src/app.js'
 import { resetStore } from '../src/data/cirsStore.js'
 import { run } from './helpers/db.js'

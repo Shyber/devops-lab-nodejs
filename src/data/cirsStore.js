@@ -76,6 +76,7 @@ function seed () {
 
 /** Deletes every record and restores the demonstration fixtures. */
 export const resetStore = db.transaction(() => {
+  if (db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'comments'").get()) db.exec('DELETE FROM comments')
   db.exec(`DELETE FROM incident_history; DELETE FROM incidents; DELETE FROM analyst_presence;
     DELETE FROM analysts; DELETE FROM categories;`)
   seed()
@@ -139,24 +140,24 @@ export function recordChange (incidentId, action, oldValue, newValue, actorId = 
     .run(incidentId, action, actorId, JSON.stringify(oldValue), JSON.stringify(newValue), new Date().toISOString())
 }
 
-export const createIncident = db.transaction(({ title, description, categoryId }) => {
+export const createIncident = db.transaction(({ title, description, categoryId }, reporterId = demoReporter.id) => {
   const now = new Date().toISOString()
   const { lastInsertRowid } = db.prepare(`INSERT INTO incidents
     (title, description, category_id, reporter_id, status, priority, assigned_analyst_id, created_at, updated_at)
     VALUES (?, ?, ?, ?, 'REPORTED', 'MEDIUM', NULL, ?, ?)`)
-    .run(title, description, categoryId, demoReporter.id, now, now)
+    .run(title, description, categoryId, reporterId, now, now)
   const incidentId = Number(lastInsertRowid)
-  recordChange(incidentId, 'CREATED', null, 'REPORTED', demoReporter.id)
+  recordChange(incidentId, 'CREATED', null, 'REPORTED', reporterId)
   return getIncident(incidentId)
 })
 
 /** Assigns an analyst; a first assignment also moves REPORTED to ASSIGNED. */
-export const assignIncident = db.transaction((incident, analystId) => {
+export const assignIncident = db.transaction((incident, analystId, actorId = demoOperator.id) => {
   if (incident.assignedAnalystId === analystId) return incident
-  recordChange(incident.id, 'ASSIGNED', incident.assignedAnalystId, analystId)
+  recordChange(incident.id, 'ASSIGNED', incident.assignedAnalystId, analystId, actorId)
   let status = incident.status
   if (status === 'REPORTED') {
-    recordChange(incident.id, 'STATUS_CHANGED', 'REPORTED', 'ASSIGNED')
+    recordChange(incident.id, 'STATUS_CHANGED', 'REPORTED', 'ASSIGNED', actorId)
     status = 'ASSIGNED'
   }
   db.prepare('UPDATE incidents SET assigned_analyst_id = ?, status = ?, updated_at = ? WHERE id = ?')

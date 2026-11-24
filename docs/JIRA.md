@@ -1,3 +1,6 @@
+> Historical pre-completion document. Preserved for provenance. For the running
+> authenticated project, use [PROJECT_V1](PROJECT_V1.md) and [ACCEPTANCE](ACCEPTANCE.md).
+
 # Jira mapping observed on 6 November 2026
 
 The project is displayed as CIDS and its real issue prefix is SCRUM. The mapping

@@ -1,3 +1,6 @@
+> Historical pre-completion document. Preserved for provenance. For the running
+> authenticated project, use [PROJECT_V1](PROJECT_V1.md) and [ACCEPTANCE](ACCEPTANCE.md).
+
 # API contract
 
 Base URL: `http://127.0.0.1:3000`. JSON POST requests use `Content-Type: application/json`.

@@ -15,16 +15,21 @@
     "practice": "node js-practice.js",
     "modules": "node main.js",
     "test:coverage": "vitest run --coverage",
-    "db:reset": "node scripts/db-reset.js"
+    "db:reset": "node scripts/db-reset.js",
+    "test:postman": "newman run postman/CIRS_Lab6_Full.postman_collection.json",
+    "test:browser": "node scripts/browser-smoke.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.11.1",
     "dotenv": "^17.2.3",
     "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.65.1",
     "@vitest/coverage-v8": "^4.0.13",
     "eslint": "^8.57.1",
     "eslint-config-standard": "^17.1.0",
@@ -33,6 +38,7 @@
     "eslint-plugin-promise": "^6.6.0",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.5.0",
+    "newman": "^6.2.3",
     "supertest": "^7.0.0",
     "vitest": "^4.0.13"
   }

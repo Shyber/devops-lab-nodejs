@@ -1,3 +1,6 @@
+> Historical pre-completion document. Preserved for provenance. For the running
+> authenticated project, use [PROJECT_V1](PROJECT_V1.md) and [ACCEPTANCE](ACCEPTANCE.md).
+
 # Measured results for the prepared complete kit
 
 These are historical complete-kit measurements. See INTEGRATION_STATUS.md for the

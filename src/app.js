@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { errorHandler } from './utils/errorHandler.js'
+import { requireAuth } from './security/auth.js'
 
 const app = express()
 app.disable('x-powered-by')
@@ -15,6 +16,11 @@ app.use((req, res, next) => {
 })
 app.get('/', (_req, res) => res.json({ ok: true, message: 'CIRS Lab5 teaching API' }))
 app.get('/health', (_req, res) => res.status(200).send('OK'))
+app.use('/app', express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public')))
+app.use('/api', (req, res, next) => {
+  if (req.path === '/auth/login' && req.method === 'POST') return next()
+  return requireAuth(req, res, next)
+})
 
 // Keep the previous lab's router discovery so member files can be added independently.
 const autoDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'routes', 'auto')

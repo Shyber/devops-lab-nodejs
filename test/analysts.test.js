@@ -1,5 +1,5 @@
 import { beforeEach, describe, it, expect } from 'vitest'
-import request from 'supertest'
+import request from './helpers/request.js'
 import app from '../src/app.js'
 import { resetStore } from '../src/data/cirsStore.js'
 import { snapshot, count } from './helpers/db.js'
@@ -27,8 +27,8 @@ describe('Analysts API - SCRUM-11 Lab5 subset', () => {
   })
   it('creates and reads back a normalized analyst', async () => {
     const response = await request(app).post('/api/analysts').send(valid).expect(201)
-    expect(response.body).toEqual({ id: 4, name: 'Robin Taylor', email: 'robin.taylor@example.test', role: 'ANALYST', active: true })
-    expect(response.headers.location).toBe('/api/analysts/4')
+    expect(response.body).toEqual({ id: expect.any(Number), name: 'Robin Taylor', email: 'robin.taylor@example.test', role: 'ANALYST', active: true })
+    expect(response.headers.location).toBe(`/api/analysts/${response.body.id}`)
     expect((await request(app).get(response.headers.location)).body).toEqual(response.body)
   })
   it('accepts an explicit inactive directory entry', async () => {
