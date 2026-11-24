@@ -1,6 +1,6 @@
 import express from 'express'
-import { listIncidents, findIncident, getCategory, createIncident } from '../../data/cirsStore.js'
-import { check, fields, id, text, statuses, priorities } from '../../utils/validation.js'
+import { listIncidents, findIncident, getCategory, createIncident, updateIncident, deleteIncident } from '../../data/cirsStore.js'
+import { check, fields, id, text, statuses, priorities, isFinal } from '../../utils/validation.js'
 
 const router = express.Router()
 
@@ -17,16 +17,44 @@ router.get('/api/incidents', (req, res) => {
 
 router.get('/api/incidents/:id', (req, res) => res.json(findIncident(req.params.id)))
 
+const editable = ['title', 'description', 'categoryId']
+const rules = {
+  title: value => text(value, 'title', 5, 120),
+  description: value => text(value, 'description', 20, 5000),
+  categoryId: value => {
+    const categoryId = id(value)
+    const category = getCategory(categoryId)
+    check(category, 404, 'CATEGORY_NOT_FOUND', 'Category not found')
+    check(category.active, 400, 'INACTIVE_CATEGORY', 'Choose an active category')
+    return categoryId
+  }
+}
+
 router.post('/api/incidents', (req, res) => {
-  fields(req.body, ['title', 'description', 'categoryId'])
-  const title = text(req.body.title, 'title', 5, 120)
-  const description = text(req.body.description, 'description', 20, 5000)
-  const categoryId = id(req.body.categoryId)
-  const category = getCategory(categoryId)
-  check(category, 404, 'CATEGORY_NOT_FOUND', 'Category not found')
-  check(category.active, 400, 'INACTIVE_CATEGORY', 'Choose an active category')
-  const incident = createIncident({ title, description, categoryId })
+  fields(req.body, editable)
+  const values = Object.fromEntries(editable.map(key => [key, rules[key](req.body[key])]))
+  const incident = createIncident(values)
   res.location(`/api/incidents/${incident.id}`).status(201).json(incident)
+})
+
+// Edits the reported content only. Priority, status and assignment have their own workflow.
+router.put('/api/incidents/:id', (req, res) => {
+  const incident = findIncident(req.params.id)
+  fields(req.body, editable)
+  const keys = Object.keys(req.body)
+  check(keys.length > 0, 400, 'INVALID_INPUT', `Provide at least one of: ${editable.join(', ')}`)
+  const changes = Object.fromEntries(keys.map(key => [key, rules[key](req.body[key])]))
+  check(!isFinal(incident.status), 409, 'FINAL_INCIDENT', 'Closed and Rejected incidents are read-only')
+  res.json(updateIncident(incident, changes))
+})
+
+// A report can be withdrawn only before the IT team starts handling it.
+router.delete('/api/incidents/:id', (req, res) => {
+  const incident = findIncident(req.params.id)
+  check(incident.status === 'REPORTED' && incident.assignedAnalystId === null, 409, 'INCIDENT_LOCKED',
+    'Only unassigned Reported incidents can be deleted')
+  deleteIncident(incident.id)
+  res.status(204).end()
 })
 
 export default router

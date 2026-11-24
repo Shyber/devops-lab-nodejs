@@ -164,6 +164,24 @@ export const assignIncident = db.transaction((incident, analystId) => {
   return getIncident(incident.id)
 })
 
+const editableColumns = { title: 'title', description: 'description', categoryId: 'category_id' }
+
+/** Updates the reported content; records one UPDATED entry with the changed fields only. */
+export const updateIncident = db.transaction((incident, changes, actorId = demoReporter.id) => {
+  const changed = Object.keys(changes).filter(key => incident[key] !== changes[key])
+  if (changed.length === 0) return incident
+  const oldValue = Object.fromEntries(changed.map(key => [key, incident[key]]))
+  const newValue = Object.fromEntries(changed.map(key => [key, changes[key]]))
+  const assignments = changed.map(key => `${editableColumns[key]} = @${key}`).join(', ')
+  db.prepare(`UPDATE incidents SET ${assignments}, updated_at = @now WHERE id = @id`)
+    .run({ ...newValue, now: new Date().toISOString(), id: incident.id })
+  recordChange(incident.id, 'UPDATED', oldValue, newValue, actorId)
+  return getIncident(incident.id)
+})
+
+/** Deletes an incident and its history (ON DELETE CASCADE). */
+export const deleteIncident = incidentId => db.prepare('DELETE FROM incidents WHERE id = ?').run(incidentId).changes === 1
+
 export const listAssignedIncidents = () => db
   .prepare('SELECT * FROM incidents WHERE assigned_analyst_id IS NOT NULL ORDER BY id')
   .all().map(toIncident)
