@@ -8,7 +8,7 @@
 
 This project applies Lab5 to the Cyber Incident Reporting System. It includes the
 JavaScript exercises, an Express API, Vitest/Supertest tests and Postman collections.
-The four member packages share one in-memory data store. All example data is fictional.
+The four member packages share one SQLite database. All example data is fictional.
 
 ## Start the assembled project
 
@@ -24,12 +24,15 @@ npm.cmd start
 ```
 
 On Linux/macOS use `npm` instead of `npm.cmd`. The server listens at
-http://127.0.0.1:3000. Stop it with Ctrl+C. A restart restores the initial fixtures.
+http://127.0.0.1:3000. Stop it with Ctrl+C. Data is saved in `data/cirs.db` and
+survives restarts. On first start the demonstration data is loaded; run
+`npm run db:reset` to restore it at any time. Set `DB_PATH` to use another file.
 If port 3000 is already used, stop your previous lab server or set `$env:PORT=3001`
 before starting and update the Postman `baseUrl` variable.
 
-No database, Docker, login or secret is needed. This is the Lab5 teaching scope.
-Authentication, authorization, persistence and the full CIRS workflow are later work.
+SQLite is embedded through `better-sqlite3`: no database server, Docker, login or
+secret is needed. Tests use a separate in-memory database for each test file.
+Authentication, authorization and the full CIRS workflow are later work.
 The analyst endpoint manages a demonstration directory, not real user accounts.
 
 ## Explore the work

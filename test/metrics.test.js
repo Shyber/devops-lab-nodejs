@@ -2,7 +2,8 @@
 import { beforeEach, describe, it, expect } from 'vitest'
 import request from 'supertest'
 import app from '../src/app.js'
-import { store, resetStore } from '../src/data/cirsStore.js'
+import { resetStore } from '../src/data/cirsStore.js'
+import { run } from './helpers/db.js'
 
 beforeEach(resetStore)
 
@@ -15,21 +16,22 @@ describe('CIRS Metrics API - SCRUM-14 and SCRUM-15', () => {
     for (const name of ['activeIncidents', 'criticalAlerts', 'onlineAnalysts']) expect(Number.isInteger(response.body[name])).toBe(true)
   })
   it('updates counts when fixture data changes instead of returning constants', async () => {
-    store.incidents.push({ id: 50, status: 'REPORTED', priority: 'CRITICAL' })
-    store.presence.push({ analystId: 2, online: true }, { analystId: 1, online: true })
+    run(`INSERT INTO incidents (id, title, description, category_id, reporter_id, status, priority, created_at, updated_at)
+      VALUES (50, 'Extra critical incident', 'Fictional extra incident for metrics.', 1, 100, 'REPORTED', 'CRITICAL', 'now', 'now')`)
+    run('UPDATE analyst_presence SET online = 1 WHERE analyst_id IN (1, 2)')
     const response = await request(app).get('/api/metrics')
     expect(response.body).toMatchObject({ activeIncidents: 5, criticalAlerts: 3, onlineAnalysts: 2 })
   })
   it('excludes final incidents and inactive or non-analyst presence', async () => {
-    store.incidents.forEach(item => { item.status = item.id % 2 ? 'CLOSED' : 'REJECTED' })
-    store.analysts[0].role = 'ADMIN'
-    store.presence.push({ analystId: 99999, online: true })
+    run("UPDATE incidents SET status = CASE WHEN id % 2 = 1 THEN 'CLOSED' ELSE 'REJECTED' END")
+    run("UPDATE analysts SET role = 'ADMIN' WHERE id = 1")
     const response = await request(app).get('/api/metrics')
     expect(response.body).toMatchObject({ activeIncidents: 0, criticalAlerts: 0, onlineAnalysts: 0 })
   })
   it('handles empty fixtures without fabricated counts', async () => {
-    store.incidents = []
-    store.analysts = []
+    run('DELETE FROM incident_history')
+    run('DELETE FROM incidents')
+    run('DELETE FROM analysts')
     expect((await request(app).get('/api/metrics')).body).toMatchObject({ activeIncidents: 0, criticalAlerts: 0, onlineAnalysts: 0 })
   })
   it('rejects unsupported filters and refuses POST on computed metrics', async () => {

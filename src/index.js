@@ -1,11 +1,12 @@
 import app from './app.js'
+import { dbPath } from './data/db.js'
 
 const port = Number(process.env.PORT || 3000)
-// Lab5 has fictional data and no authentication. Bind locally for the demonstration.
+// Fictional data and no authentication yet. Bind locally for the demonstration.
 const server = app.listen(port, '127.0.0.1', () => {
-  console.log(`[CIRS Lab5] http://127.0.0.1:${port} - in-memory demonstration`)
+  console.log(`[CIRS] http://127.0.0.1:${port} - SQLite database: ${dbPath}`)
 })
 server.on('error', error => {
-  console.error(`[CIRS Lab5] Server failed: ${error.code}`)
+  console.error(`[CIRS] Server failed: ${error.code}`)
   process.exitCode = 1
 })
