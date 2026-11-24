@@ -1,19 +1,19 @@
 import { beforeEach, describe, it, expect } from 'vitest'
 import request from 'supertest'
 import app from '../src/app.js'
-import { store, resetStore } from '../src/data/cirsStore.js'
+import { resetStore } from '../src/data/cirsStore.js'
+import { snapshot, run } from './helpers/db.js'
 
 beforeEach(resetStore)
 const valid = { title: '  Suspicious training message  ', description: '  A fictional email asks for a password in a classroom exercise.  ', categoryId: 1 }
 
 describe('Incidents API - SCRUM-12, SCRUM-13 and SCRUM-26', () => {
-  it('lists all incidents newest first without changing stored order', async () => {
+  it('lists all incidents newest first', async () => {
     const response = await request(app).get('/api/incidents').expect(200)
     expect(response.body.map(item => item.id)).toEqual([6, 5, 4, 3, 2, 1])
-    expect(store.incidents.map(item => item.id)).toEqual([1, 2, 3, 4, 5, 6])
   })
   it('uses ID as a stable tie breaker for equal timestamps', async () => {
-    store.incidents[0].createdAt = store.incidents[1].createdAt
+    run('UPDATE incidents SET created_at = (SELECT created_at FROM incidents WHERE id = 2) WHERE id = 1')
     const response = await request(app).get('/api/incidents')
     expect(response.body.findIndex(item => item.id === 2)).toBeLessThan(response.body.findIndex(item => item.id === 1))
   })
@@ -62,14 +62,14 @@ describe('Incidents API - SCRUM-12, SCRUM-13 and SCRUM-26', () => {
     { ...valid, status: 'CLOSED' }, { ...valid, priority: 'CRITICAL' },
     { ...valid, reporterId: 99 }, { ...valid, assignedAnalystId: 1 }
   ])('rejects invalid creation without a partial record: %j', async body => {
-    const before = JSON.stringify(store)
+    const before = snapshot()
     await request(app).post('/api/incidents').send(body).expect(400)
-    expect(JSON.stringify(store)).toBe(before)
+    expect(snapshot()).toBe(before)
   })
   it('rejects missing and inactive categories', async () => {
-    const before = JSON.stringify(store)
+    const before = snapshot()
     await request(app).post('/api/incidents').send({ ...valid, categoryId: 99999 }).expect(404)
     await request(app).post('/api/incidents').send({ ...valid, categoryId: 6 }).expect(400)
-    expect(JSON.stringify(store)).toBe(before)
+    expect(snapshot()).toBe(before)
   })
 })

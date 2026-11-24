@@ -1,21 +1,17 @@
 // Based on Kandarp Pandya's CIRS adaptation in PR #16.
-// Prepared follow-up: calculate every count from the shared Lab5 fixtures.
+// Every count is calculated from the database on each request.
 import express from 'express'
-import { store } from '../../data/cirsStore.js'
-import { isFinal, fields } from '../../utils/validation.js'
+import { metricCounts } from '../../data/cirsStore.js'
+import { fields } from '../../utils/validation.js'
 
 const router = express.Router()
 
 router.get('/api/metrics', (req, res) => {
   fields(req.query, [])
-  const active = store.incidents.filter(item => !isFinal(item.status))
-  const onlineIds = new Set(store.presence.filter(item => item.online).map(item => item.analystId))
   res.json({
     system: 'Cyber Incident Reporting System',
     status: 'Operational', // API availability, not a security verdict.
-    activeIncidents: active.length,
-    criticalAlerts: active.filter(item => item.priority === 'CRITICAL').length,
-    onlineAnalysts: store.analysts.filter(item => item.active && item.role === 'ANALYST' && onlineIds.has(item.id)).length,
+    ...metricCounts(),
     systemUptime: process.uptime()
   })
 })

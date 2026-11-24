@@ -1,22 +1,60 @@
-// Fictional Lab5 data. Restarting the server restores these fixtures.
-// Accounts, authentication, PostgreSQL and full history belong to later work.
+// CIRS data access on top of SQLite. Routes call these functions instead of
+// touching SQL directly. All example data is fictional.
+import { db } from './db.js'
 import { check, id } from '../utils/validation.js'
 
-export const store = { analysts: [], categories: [], incidents: [], presence: [] }
+export { db }
 export const demoReporter = { id: 100, name: 'Demo Campus User', role: 'USER' }
 export const demoOperator = { id: 1, name: 'Maya Chen', role: 'ANALYST' }
 
-export function resetStore () {
-  store.analysts = [
-    { id: 1, name: 'Maya Chen', email: 'maya.chen@example.test', role: 'ANALYST', active: true },
-    { id: 2, name: 'Leo Martin', email: 'leo.martin@example.test', role: 'ANALYST', active: true },
-    { id: 3, name: 'Nora Silva', email: 'nora.silva@example.test', role: 'ANALYST', active: false }
+// ---------- Row mapping ----------
+
+const toAnalyst = row => row && { id: row.id, name: row.name, email: row.email, role: row.role, active: row.active === 1 }
+const toCategory = row => row && { id: row.id, name: row.name, active: row.active === 1 }
+const toHistory = row => ({
+  action: row.action,
+  actorId: row.actor_id,
+  oldValue: JSON.parse(row.old_value),
+  newValue: JSON.parse(row.new_value),
+  at: row.at
+})
+const historyOf = incidentId => db
+  .prepare('SELECT * FROM incident_history WHERE incident_id = ? ORDER BY id')
+  .all(incidentId).map(toHistory)
+const toIncident = row => row && {
+  id: row.id,
+  title: row.title,
+  description: row.description,
+  categoryId: row.category_id,
+  reporterId: row.reporter_id,
+  status: row.status,
+  priority: row.priority,
+  assignedAnalystId: row.assigned_analyst_id,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+  history: historyOf(row.id)
+}
+
+// ---------- Fixtures ----------
+
+function seed () {
+  const analysts = [
+    [1, 'Maya Chen', 'maya.chen@example.test', 1],
+    [2, 'Leo Martin', 'leo.martin@example.test', 1],
+    [3, 'Nora Silva', 'nora.silva@example.test', 0]
   ]
+  const insertAnalyst = db.prepare("INSERT INTO analysts (id, name, email, role, active) VALUES (?, ?, ?, 'ANALYST', ?)")
+  analysts.forEach(row => insertAnalyst.run(...row))
+
   // Fictional presence records for SCRUM-14, not measured login sessions.
-  store.presence = [{ analystId: 1, online: true }, { analystId: 2, online: false }, { analystId: 3, online: true }]
-  store.categories = ['Phishing', 'Suspicious Link', 'Compromised Account', 'Malware', 'Other']
-    .map((name, index) => ({ id: index + 1, name, active: true }))
-  store.categories.push({ id: 6, name: 'Retired training category', active: false })
+  const insertPresence = db.prepare('INSERT INTO analyst_presence (analyst_id, online) VALUES (?, ?)')
+  ;[[1, 1], [2, 0], [3, 1]].forEach(row => insertPresence.run(...row))
+
+  const insertCategory = db.prepare('INSERT INTO categories (id, name, active) VALUES (?, ?, ?)')
+  ;['Phishing', 'Suspicious Link', 'Compromised Account', 'Malware', 'Other']
+    .forEach((name, index) => insertCategory.run(index + 1, name, 1))
+  insertCategory.run(6, 'Retired training category', 0)
+
   const examples = [
     ['Suspicious campus email', 1, 'REPORTED', 'MEDIUM', null],
     ['Unexpected account access', 3, 'ASSIGNED', 'HIGH', 1],
@@ -25,32 +63,121 @@ export function resetStore () {
     ['Rejected duplicate training report', 2, 'REJECTED', 'MEDIUM', null],
     ['Resolved training device incident', 4, 'RESOLVED', 'CRITICAL', 1]
   ]
-  store.incidents = examples.map(([title, categoryId, status, priority, assignedAnalystId], index) => ({
-    id: index + 1,
-    title,
-    description: 'Fictional incident used for the local CIRS Lab5 demonstration.',
-    categoryId,
-    reporterId: demoReporter.id,
-    status,
-    priority,
-    assignedAnalystId,
-    createdAt: `2026-11-01T10:0${index}:00.000Z`,
-    updatedAt: `2026-11-01T10:0${index}:00.000Z`,
-    history: [] // Seed snapshots do not claim a recorded investigation history.
-  }))
+  const insertIncident = db.prepare(`INSERT INTO incidents
+    (id, title, description, category_id, reporter_id, status, priority, assigned_analyst_id, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+  examples.forEach(([title, categoryId, status, priority, analystId], index) => {
+    const at = `2026-11-01T10:0${index}:00.000Z`
+    // Seed snapshots do not claim a recorded investigation history.
+    insertIncident.run(index + 1, title, 'Fictional incident used for the local CIRS demonstration.',
+      categoryId, demoReporter.id, status, priority, analystId, at, at)
+  })
 }
 
-export const nextId = records => Math.max(0, ...records.map(record => record.id)) + 1
+/** Deletes every record and restores the demonstration fixtures. */
+export const resetStore = db.transaction(() => {
+  db.exec(`DELETE FROM incident_history; DELETE FROM incidents; DELETE FROM analyst_presence;
+    DELETE FROM analysts; DELETE FROM categories;`)
+  seed()
+})
 
+/** Seeds an empty database (first start); keeps existing data otherwise. */
+export function ensureSeeded () {
+  if (db.prepare('SELECT COUNT(*) AS n FROM categories').get().n === 0) resetStore()
+}
+
+// ---------- Analysts ----------
+
+export function listAnalysts (active) {
+  if (active === 'all') return db.prepare('SELECT * FROM analysts ORDER BY id').all().map(toAnalyst)
+  return db.prepare('SELECT * FROM analysts WHERE active = ? ORDER BY id').all(active ? 1 : 0).map(toAnalyst)
+}
+
+export const getAnalyst = analystId => toAnalyst(db.prepare('SELECT * FROM analysts WHERE id = ?').get(analystId))
+
+export const emailExists = email => Boolean(db.prepare('SELECT 1 FROM analysts WHERE email = ?').get(email))
+
+export function createAnalyst ({ name, email, active }) {
+  const { lastInsertRowid } = db
+    .prepare("INSERT INTO analysts (name, email, role, active) VALUES (?, ?, 'ANALYST', ?)")
+    .run(name, email, active ? 1 : 0)
+  return getAnalyst(Number(lastInsertRowid))
+}
+
+// ---------- Categories ----------
+
+export const listActiveCategories = () => db.prepare('SELECT * FROM categories WHERE active = 1 ORDER BY id').all().map(toCategory)
+export const getCategory = categoryId => toCategory(db.prepare('SELECT * FROM categories WHERE id = ?').get(categoryId))
+
+// ---------- Incidents ----------
+
+/** Lists incidents newest first; every given filter is combined with AND. */
+export function listIncidents ({ status, priority, categoryId, category } = {}) {
+  const where = []
+  const params = []
+  if (status !== undefined) { where.push('i.status = ?'); params.push(status) }
+  if (priority !== undefined) { where.push('i.priority = ?'); params.push(priority) }
+  if (categoryId !== undefined) { where.push('i.category_id = ?'); params.push(categoryId) }
+  if (category !== undefined) { where.push('c.name = ?'); params.push(category) }
+  const sql = `SELECT i.* FROM incidents i JOIN categories c ON c.id = i.category_id
+    ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
+    ORDER BY i.created_at DESC, i.id DESC`
+  return db.prepare(sql).all(...params).map(toIncident)
+}
+
+export const getIncident = incidentId => toIncident(db.prepare('SELECT * FROM incidents WHERE id = ?').get(incidentId))
+
+/** Validates the ID, then returns the incident or throws a 404. */
 export function findIncident (value) {
-  const incidentId = id(value)
-  const incident = store.incidents.find(item => item.id === incidentId)
+  const incident = getIncident(id(value))
   check(incident, 404, 'INCIDENT_NOT_FOUND', 'Incident not found')
   return incident
 }
 
-export function recordChange (incident, action, oldValue, newValue, actorId = demoOperator.id) {
-  incident.history.push({ action, actorId, oldValue, newValue, at: new Date().toISOString() })
+export function recordChange (incidentId, action, oldValue, newValue, actorId = demoOperator.id) {
+  db.prepare('INSERT INTO incident_history (incident_id, action, actor_id, old_value, new_value, at) VALUES (?, ?, ?, ?, ?, ?)')
+    .run(incidentId, action, actorId, JSON.stringify(oldValue), JSON.stringify(newValue), new Date().toISOString())
 }
 
-resetStore()
+export const createIncident = db.transaction(({ title, description, categoryId }) => {
+  const now = new Date().toISOString()
+  const { lastInsertRowid } = db.prepare(`INSERT INTO incidents
+    (title, description, category_id, reporter_id, status, priority, assigned_analyst_id, created_at, updated_at)
+    VALUES (?, ?, ?, ?, 'REPORTED', 'MEDIUM', NULL, ?, ?)`)
+    .run(title, description, categoryId, demoReporter.id, now, now)
+  const incidentId = Number(lastInsertRowid)
+  recordChange(incidentId, 'CREATED', null, 'REPORTED', demoReporter.id)
+  return getIncident(incidentId)
+})
+
+/** Assigns an analyst; a first assignment also moves REPORTED to ASSIGNED. */
+export const assignIncident = db.transaction((incident, analystId) => {
+  if (incident.assignedAnalystId === analystId) return incident
+  recordChange(incident.id, 'ASSIGNED', incident.assignedAnalystId, analystId)
+  let status = incident.status
+  if (status === 'REPORTED') {
+    recordChange(incident.id, 'STATUS_CHANGED', 'REPORTED', 'ASSIGNED')
+    status = 'ASSIGNED'
+  }
+  db.prepare('UPDATE incidents SET assigned_analyst_id = ?, status = ?, updated_at = ? WHERE id = ?')
+    .run(analystId, status, new Date().toISOString(), incident.id)
+  return getIncident(incident.id)
+})
+
+export const listAssignedIncidents = () => db
+  .prepare('SELECT * FROM incidents WHERE assigned_analyst_id IS NOT NULL ORDER BY id')
+  .all().map(toIncident)
+
+// ---------- Metrics ----------
+
+export function metricCounts () {
+  const open = "status NOT IN ('CLOSED', 'REJECTED')"
+  return {
+    activeIncidents: db.prepare(`SELECT COUNT(*) AS n FROM incidents WHERE ${open}`).get().n,
+    criticalAlerts: db.prepare(`SELECT COUNT(*) AS n FROM incidents WHERE ${open} AND priority = 'CRITICAL'`).get().n,
+    onlineAnalysts: db.prepare(`SELECT COUNT(*) AS n FROM analysts a JOIN analyst_presence p ON p.analyst_id = a.id
+      WHERE a.active = 1 AND a.role = 'ANALYST' AND p.online = 1`).get().n
+  }
+}
+
+ensureSeeded()
