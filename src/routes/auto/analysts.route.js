@@ -1,5 +1,5 @@
 import express from 'express'
-import { store, nextId } from '../../data/cirsStore.js'
+import { listAnalysts, getAnalyst, emailExists, createAnalyst } from '../../data/cirsStore.js'
 import { check, fields, id, text } from '../../utils/validation.js'
 
 const router = express.Router()
@@ -8,12 +8,11 @@ router.get('/api/analysts', (req, res) => {
   fields(req.query, ['active'])
   const active = req.query.active === undefined ? 'true' : req.query.active
   check(['true', 'false', 'all'].includes(active), 400, 'INVALID_FILTER', 'active must be true, false or all')
-  res.json(store.analysts.filter(item => active === 'all' || item.active === (active === 'true')))
+  res.json(listAnalysts(active === 'all' ? 'all' : active === 'true'))
 })
 
 router.get('/api/analysts/:id', (req, res) => {
-  const analystId = id(req.params.id)
-  const analyst = store.analysts.find(item => item.id === analystId)
+  const analyst = getAnalyst(id(req.params.id))
   check(analyst, 404, 'ANALYST_NOT_FOUND', 'Analyst not found')
   res.json(analyst)
 })
@@ -25,10 +24,9 @@ router.post('/api/analysts', (req, res) => {
   check(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 400, 'INVALID_EMAIL', 'Provide a valid email address')
   const active = req.body.active === undefined ? true : req.body.active
   check(typeof active === 'boolean', 400, 'INVALID_INPUT', 'active must be a boolean')
-  check(!store.analysts.some(item => item.email === email), 409, 'DUPLICATE_EMAIL', 'Email already exists')
+  check(!emailExists(email), 409, 'DUPLICATE_EMAIL', 'Email already exists')
   // This is a demonstration analyst directory, not account registration.
-  const analyst = { id: nextId(store.analysts), name, email, role: 'ANALYST', active }
-  store.analysts.push(analyst)
+  const analyst = createAnalyst({ name, email, active })
   res.location(`/api/analysts/${analyst.id}`).status(201).json(analyst)
 })
 

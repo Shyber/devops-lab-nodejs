@@ -1,23 +1,31 @@
 import { beforeEach, describe, it, expect } from 'vitest'
-import { store, resetStore, nextId, findIncident, recordChange } from '../../src/data/cirsStore.js'
+import { resetStore, ensureSeeded, findIncident, getIncident, recordChange, listAnalysts, listActiveCategories } from '../../src/data/cirsStore.js'
 import { check, text, id, fields, isFinal } from '../../src/utils/validation.js'
+import { run, count } from '../helpers/db.js'
 beforeEach(resetStore)
 
 describe('Common CIRS fixtures and input validation', () => {
-  it('restores fixtures and provides IDs even for empty or non-contiguous arrays', () => {
-    store.incidents.length = 0
-    store.analysts.push({ id: 50 })
+  it('restores fixtures after the data was changed', () => {
+    run('DELETE FROM incidents')
+    run("INSERT INTO analysts (id, name, email, role, active) VALUES (50, 'Temp', 'temp@example.test', 'ANALYST', 1)")
     resetStore()
-    expect(store.incidents).toHaveLength(6)
-    expect(store.analysts).toHaveLength(3)
-    expect(store.categories.filter(item => item.active)).toHaveLength(5)
-    expect(nextId([])).toBe(1)
-    expect(nextId([{ id: 1 }, { id: 7 }])).toBe(8)
+    expect(count('incidents')).toBe(6)
+    expect(listAnalysts('all')).toHaveLength(3)
+    expect(listActiveCategories()).toHaveLength(5)
+  })
+  it('seeds only an empty database', () => {
+    run('DELETE FROM incidents WHERE id = 1')
+    ensureSeeded()
+    expect(count('incidents')).toBe(5)
+    run('DELETE FROM incidents')
+    run('DELETE FROM categories')
+    ensureSeeded()
+    expect(count('incidents')).toBe(6)
   })
   it('finds an incident and records an actor-aware change', () => {
     const incident = findIncident('1')
-    recordChange(incident, 'ASSIGNED', null, 2)
-    expect(incident.history[0]).toMatchObject({ action: 'ASSIGNED', actorId: 1, oldValue: null, newValue: 2 })
+    recordChange(incident.id, 'ASSIGNED', null, 2)
+    expect(getIncident(1).history[0]).toMatchObject({ action: 'ASSIGNED', actorId: 1, oldValue: null, newValue: 2 })
     expect(() => findIncident('99999')).toThrow('Incident not found')
   })
   it.each([1, '1', 100, Number.MAX_SAFE_INTEGER])('accepts a positive safe ID %j', value => expect(id(value)).toBe(Number(value)))

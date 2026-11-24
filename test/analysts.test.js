@@ -1,7 +1,8 @@
 import { beforeEach, describe, it, expect } from 'vitest'
 import request from 'supertest'
 import app from '../src/app.js'
-import { store, resetStore } from '../src/data/cirsStore.js'
+import { resetStore } from '../src/data/cirsStore.js'
+import { snapshot, count } from './helpers/db.js'
 
 beforeEach(resetStore)
 const valid = { name: '  Robin Taylor  ', email: '  ROBIN.TAYLOR@EXAMPLE.TEST  ' }
@@ -42,14 +43,14 @@ describe('Analysts API - SCRUM-11 Lab5 subset', () => {
     { ...valid, active: 'true' }, { ...valid, role: 'ADMIN' }, { ...valid, id: 99 },
     { ...valid, password: 'not-accepted-in-lab5' }
   ])('rejects invalid creation without changing data: %j', async body => {
-    const before = JSON.stringify(store)
+    const before = snapshot()
     await request(app).post('/api/analysts').send(body).expect(400)
-    expect(JSON.stringify(store)).toBe(before)
+    expect(snapshot()).toBe(before)
   })
   it('refuses duplicate emails after trimming and lowercasing', async () => {
-    const before = store.analysts.length
+    const before = count('analysts')
     const response = await request(app).post('/api/analysts').send({ name: 'Another name', email: ' MAYA.CHEN@EXAMPLE.TEST ' }).expect(409)
     expect(response.body.code).toBe('DUPLICATE_EMAIL')
-    expect(store.analysts).toHaveLength(before)
+    expect(count('analysts')).toBe(before)
   })
 })
